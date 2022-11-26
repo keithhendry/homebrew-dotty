@@ -6,18 +6,18 @@ class Dotty < Formula
   desc "Dotfiles using symlinks and embedded git"
   homepage "https://github.com/keithhendry/dotty"
   url "https://github.com/keithhendry/dotty/archive/0.1.0.tar.gz"
-  sha256 "498c2ae6820344990171ab515f1d4df309dd538091c676ffb6dae2d20d3695a2"
+  sha256 "ee092b2af3432e248f5a035e27065bf27685d1daa9afd1988c8e6d0a6b734c05"
   license "MIT"
 
   on_macos do
     on_intel do
       url "https://github.com/keithhendry/dotty/releases/download/0.1.0/dotty-0.1.0-darwin-amd64.tar.gz"
-      sha256 "d0ea04a71f843a966d44199611cf9e2169942ee88bf81596052e373890787b82"
+      sha256 "5bf8f3e1f83e4ab2cb09e7e941d1db6a8ee24be6d8fe6be361b2c14d305dec03"
     end
 
     on_arm do
       url "https://github.com/keithhendry/dotty/releases/download/0.1.0/dotty-0.1.0-darwin-arm64.tar.gz"
-      sha256 "7c71ab1b265d487e77486c6002c00163e265bda7007d6656e28783ed79c29dae"
+      sha256 "9abf442161289afb5a5478311a4ab3493ffbfb10dc4a1fd55ed1178a1e53a3c2"
     end
   end
 
@@ -26,6 +26,6 @@ class Dotty < Formula
   end
 
   test do
-    system "#{bin}/dotty --version"
+    system "#{bin}/dotty", "--version"
   end
 end
