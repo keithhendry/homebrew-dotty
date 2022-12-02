@@ -36,7 +36,7 @@ PLATFORM_TEMPLATE = Template(
 )
 
 ARCHITECTURE_TEMPLATE = Template(
-    """on_$archname do
+    """on_${arch_name} do
       url "https://github.com/keithhendry/dotty/releases/download/$version/$artifact"
       sha256 "$sha256"
     end"""
@@ -45,6 +45,7 @@ ARCHITECTURE_TEMPLATE = Template(
 
 class Platform(NamedTuple):
     platform: str
+    platform_name: str
     arch: str
     arch_name: str
 
@@ -53,10 +54,10 @@ class Platform(NamedTuple):
 
 
 class PlatformOption(Platform, enum.Enum):
-    DARWIN_AMD64 = Platform("darwin", "amd64", "intel")
-    DARWIN_ARM64 = Platform("darwin", "arm64", "arm")
-    LINUX_AMD64 = Platform("linux", "amd64", "intel")
-    LINUX_ARM64 = Platform("linux", "arm64", "arm")
+    DARWIN_AMD64 = Platform("darwin", "macos", "amd64", "intel")
+    DARWIN_ARM64 = Platform("darwin", "macos", "arm64", "arm")
+    LINUX_AMD64 = Platform("linux", "linux", "amd64", "intel")
+    LINUX_ARM64 = Platform("linux", "linux", "arm64", "arm")
 
 
 PLATFORM_MAPPING: dict[str, Platform] = {
@@ -96,10 +97,10 @@ def get_artifact(
 def generate(version: str, platform_artifacts: list[PlatformArtifact]) -> str:
     arch_templates: defaultdict[str, list[str]] = defaultdict(list)
     for artifact in platform_artifacts:
-        arch_templates[artifact.platform.platform].append(
+        arch_templates[artifact.platform.platform_name].append(
             ARCHITECTURE_TEMPLATE.substitute(
                 {
-                    "archname": artifact.platform.arch_name,
+                    "arch_name": artifact.platform.arch_name,
                     "version": version,
                     "artifact": artifact.filename,
                     "sha256": artifact.sha256,
