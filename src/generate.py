@@ -30,7 +30,7 @@ end"""
 )
 
 PLATFORM_TEMPLATE = Template(
-    """on_$platform
+    """on_$platform do
     $arch
   end"""
 )
