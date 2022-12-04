@@ -7,7 +7,7 @@ class Dotty < Formula
   homepage "https://github.com/keithhendry/dotty"
   license "MIT"
 
-  on_macos
+  on_macos do
     on_intel do
       url "https://github.com/keithhendry/dotty/releases/download/0.1.0/dotty-0.1.0-darwin-amd64.tar.gz"
       sha256 "914bd58dc9698688bcd1dd4e8c8bb45a19f6a7153d134d7b1e79eb2b86a2bae2"
