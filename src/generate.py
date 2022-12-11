@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 
 import argparse
-from collections import defaultdict
 import enum
-from pathlib import Path
+import hashlib
+from collections import defaultdict
 from string import Template
 from typing import NamedTuple
+from urllib.request import urlopen
+
+REPOSITORY = "https://github.com/keithhendry/dotty"
+FILENAME = "dotty-$VERSION-$PLATFORM-$ARCHITECTURE.tar.gz"
 
 TEMPLATE = Template(
     """# typed: false
@@ -14,10 +18,12 @@ TEMPLATE = Template(
 # This file was generated. DO NOT EDIT.
 class Dotty < Formula
   desc "Dotfiles using symlinks and embedded git"
-  homepage "https://github.com/keithhendry/dotty"
+  homepage "$REPOSITORY"
+  url "$URL"
+  sha256 "$SHA256"
   license "MIT"
 
-  $download
+  $DOWNLOAD
 
   def install
     bin.install "dotty"
@@ -30,27 +36,27 @@ end"""
 )
 
 PLATFORM_TEMPLATE = Template(
-    """on_$platform do
-    $arch
+    """on_$PLATFORM do
+    $ARCHITECTURE
   end"""
 )
 
 ARCHITECTURE_TEMPLATE = Template(
-    """on_${arch_name} do
-      url "https://github.com/keithhendry/dotty/releases/download/$version/$artifact"
-      sha256 "$sha256"
+    """on_$ARCHITECTURE do
+      url "$URL"
+      sha256 "$SHA256"
     end"""
 )
 
 
 class Platform(NamedTuple):
     platform: str
-    platform_name: str
-    arch: str
-    arch_name: str
+    platform_alias: str
+    architecture: str
+    architecture_alias: str
 
     def __repr__(self) -> str:
-        return f"{self.platform}/{self.arch}"
+        return f"{self.platform}/{self.architecture}"
 
 
 class PlatformOption(Platform, enum.Enum):
@@ -67,43 +73,51 @@ PLATFORM_MAPPING: dict[str, Platform] = {
 
 class PlatformArtifact(NamedTuple):
     platform: Platform
-    filename: str
+    url: str
     sha256: str
 
 
-def get_filename(platform: Platform, version: str) -> str:
-    return f"dotty-{version}-{platform.platform}-{platform.arch}.tar.gz"
+def get_filename(filename_template: Template, version: str, platform: Platform) -> str:
+    return filename_template.substitute(
+        {
+            "VERSION": version,
+            "PLATFORM": platform.platform,
+            "ARCHITECTURE": platform.architecture,
+        }
+    )
 
 
-def read_checksums(checksums_path: Path) -> dict[str, str]:
-    checksums: dict[str, str] = {}
-
-    with open(checksums_path) as f:
-        for line in f.readlines():
-            sha256, file = line.strip().split("  ")
-            checksums[file] = sha256
-
-    return checksums
+def get_url_sha256(url: str) -> str:
+    with urlopen(url) as response:
+        body = response.read()
+        sha256_hash = hashlib.sha256()
+        sha256_hash.update(body)
+        return sha256_hash.hexdigest()
 
 
 def get_artifact(
-    checksums: dict[str, str], version: str, platform: Platform
+    repository: str, filename_template: Template, version: str, platform: Platform
 ) -> PlatformArtifact:
-    filename = get_filename(platform, version)
-    checksum = checksums[filename]
-    return PlatformArtifact(platform, filename, checksum)
+    filename = get_filename(
+        filename_template=filename_template, version=version, platform=platform
+    )
+    url = f"{repository}/releases/download/{version}/{filename}"
+    return PlatformArtifact(platform=platform, url=url, sha256=get_url_sha256(url))
 
 
-def generate(version: str, platform_artifacts: list[PlatformArtifact]) -> str:
+def generate(
+    repository: str,
+    version: str,
+    platform_artifacts: list[PlatformArtifact],
+) -> str:
     arch_templates: defaultdict[str, list[str]] = defaultdict(list)
     for artifact in platform_artifacts:
-        arch_templates[artifact.platform.platform_name].append(
+        arch_templates[artifact.platform.platform_alias].append(
             ARCHITECTURE_TEMPLATE.substitute(
                 {
-                    "arch_name": artifact.platform.arch_name,
-                    "version": version,
-                    "artifact": artifact.filename,
-                    "sha256": artifact.sha256,
+                    "ARCHITECTURE": artifact.platform.architecture_alias,
+                    "URL": artifact.url,
+                    "SHA256": artifact.sha256,
                 }
             )
         )
@@ -111,24 +125,31 @@ def generate(version: str, platform_artifacts: list[PlatformArtifact]) -> str:
     for platform, templates in arch_templates.items():
         platform_templates.append(
             PLATFORM_TEMPLATE.substitute(
-                {"platform": platform, "arch": "\n\n    ".join(templates)}
+                {"PLATFORM": platform, "ARCHITECTURE": "\n\n    ".join(templates)}
             )
         )
 
-    return TEMPLATE.substitute({"download": "\n\n  ".join(platform_templates)})
+    url = f"{repository}/archive/refs/tags/{version}.tar.gz"
+    return TEMPLATE.substitute(
+        {
+            "REPOSITORY": repository,
+            "URL": url,
+            "SHA256": get_url_sha256(url),
+            "DOWNLOAD": "\n\n  ".join(platform_templates),
+        }
+    )
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate dotty formula.")
     parser.add_argument(
-        "--checksums-path",
-        type=Path,
-        required=True,
-        help="The path to the checksums file.",
+        "--repository",
+        default=REPOSITORY,
+        help="The base repository URL.",
     )
     parser.add_argument(
         "--filename",
-        default="dotty-{VERSION}-{PLATFORM}-{ARCHITECTURE}.tar.gz",
+        default=FILENAME,
         help="The filename template of the release artifacts.",
     )
     parser.add_argument(
@@ -151,11 +172,18 @@ def parse_args() -> argparse.Namespace:
 
 def main():
     args = parse_args()
-    checksums = read_checksums(args.checksums_path)
+    filename_template = Template(args.filename)
     platform_artifacts = [
-        get_artifact(checksums, args.version, platform) for platform in args.platform
+        get_artifact(
+            repository=args.repository,
+            filename_template=filename_template,
+            version=args.version,
+            platform=platform,
+        )
+        for platform in args.platform
     ]
     formula = generate(
+        repository=args.repository,
         version=args.version,
         platform_artifacts=platform_artifacts,
     )
