@@ -1,4 +1,4 @@
-# Keithhendry Dotty
+# Dotty
 
 ## How do I install these formulae?
 
