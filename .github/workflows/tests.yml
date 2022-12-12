@@ -1,4 +1,4 @@
-name: brew test-bot
+name: Homebrew Test Bot
 on:
   push:
     branches:
@@ -26,6 +26,8 @@ jobs:
 
       - run: brew test-bot --only-cleanup-before
 
+      - run: brew test-bot --only-setup
+
       - run: brew test-bot --only-tap-syntax
 
       - run: brew test-bot --only-formulae
@@ -36,4 +38,4 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: bottles
-          path: '*.bottle.*'
+          path: "*.bottle.*"

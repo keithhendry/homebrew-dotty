@@ -1,0 +1,15 @@
+name: Create PR
+on:
+  push:
+    branches:
+      - release/*
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create pr
+        run: |
+          pr_url="$(gh pr create --fill)"
+          gh pr merge --auto -r "$pr_url"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
