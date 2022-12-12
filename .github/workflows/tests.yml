@@ -1,11 +1,8 @@
 name: Homebrew Test Bot
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+on: push
 jobs:
   test-bot:
+    name: Run brew test-bot
     runs-on: macos-12
     steps:
       - name: Set up Homebrew
