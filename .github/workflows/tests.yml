@@ -3,7 +3,10 @@ on: push
 jobs:
   test-bot:
     name: Run brew test-bot
-    runs-on: macos-12
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, macos-12]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Set up Homebrew
         id: set-up-homebrew
