@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
 import argparse
+import contextlib
 import enum
 import hashlib
+import pathlib
+import sys
 from collections import defaultdict
 from string import Template
 from typing import NamedTuple
@@ -47,6 +50,10 @@ ARCHITECTURE_TEMPLATE = Template(
       sha256 "$SHA256"
     end"""
 )
+
+DOTTY_RB_PATH = (
+    pathlib.Path(__file__).parent.resolve() / ".." / "Formula" / "dotty.rb"
+).resolve()
 
 
 class Platform(NamedTuple):
@@ -141,7 +148,10 @@ def generate(
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate dotty formula.")
+    parser = argparse.ArgumentParser(
+        description="Generate dotty formula.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     parser.add_argument(
         "--repository",
         default=REPOSITORY,
@@ -165,9 +175,28 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="The platforms being released to.",
     )
+    parser.add_argument(
+        "--output",
+        default=DOTTY_RB_PATH,
+        help="The filename to write to or - for stdout.",
+    )
 
     args = parser.parse_args()
     return args
+
+
+@contextlib.contextmanager
+def smart_open(filename=None):
+    if filename and filename != "-":
+        fh = open(filename, "w")
+    else:
+        fh = sys.stdout
+
+    try:
+        yield fh
+    finally:
+        if fh is not sys.stdout:
+            fh.close()
 
 
 def main():
@@ -187,7 +216,8 @@ def main():
         version=args.version,
         platform_artifacts=platform_artifacts,
     )
-    print(formula)
+    with smart_open(args.output) as fh:
+        print(formula, file=fh)
 
 
 if __name__ == "__main__":
