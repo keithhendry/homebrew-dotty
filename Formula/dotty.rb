@@ -5,26 +5,26 @@
 class Dotty < Formula
   desc "Dotfiles using symlinks and embedded git"
   homepage "https://github.com/keithhendry/dotty"
-  url "https://github.com/keithhendry/dotty/archive/refs/tags/1.0.1.tar.gz"
-  sha256 "6b236b678983a64bd4dd70f58eb506faf48ded251a0675e3109281c7fcf81132"
+  url "https://github.com/keithhendry/dotty/archive/refs/tags/1.0.2.tar.gz"
+  sha256 "928f7766e254e1b68c8b0496f9c8ac969843333a64ac81ae773ad701d7104d55"
   license "MIT"
 
   on_macos do
     on_intel do
-      url "https://github.com/keithhendry/dotty/releases/download/1.0.1/dotty-1.0.1-darwin-amd64.tar.gz"
-      sha256 "3126ddd1d837ad3225ea4cafefb11f7ecac312b1a3e1053d4648ca5c2cdb661f"
+      url "https://github.com/keithhendry/dotty/releases/download/1.0.2/dotty-1.0.2-darwin-amd64.tar.gz"
+      sha256 "b3d88a62f5a7a0201a4998827fa9f2599850736140cc947cd93ded1cfd6a16eb"
     end
 
     on_arm do
-      url "https://github.com/keithhendry/dotty/releases/download/1.0.1/dotty-1.0.1-darwin-arm64.tar.gz"
-      sha256 "8bff806b5360c54498128c2a120f830e7ec87e17a8e94c74b03bacc6310265e8"
+      url "https://github.com/keithhendry/dotty/releases/download/1.0.2/dotty-1.0.2-darwin-arm64.tar.gz"
+      sha256 "7a6a8f229ca676893f84cf577595b831dcdcd61b572f6183fd78bbb86c9ccc53"
     end
   end
 
   on_linux do
     on_intel do
-      url "https://github.com/keithhendry/dotty/releases/download/1.0.1/dotty-1.0.1-linux-amd64.tar.gz"
-      sha256 "ab331e57637f44ef3566c8d8c4d0be5633c6bed7a22b699a6f9c03c960146ec3"
+      url "https://github.com/keithhendry/dotty/releases/download/1.0.2/dotty-1.0.2-linux-amd64.tar.gz"
+      sha256 "c77951bb16a72a1c12563d59405f16c7dcf2c2134e4688a34b08c5dabf980292"
     end
   end
 
