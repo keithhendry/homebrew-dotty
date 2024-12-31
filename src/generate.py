@@ -23,6 +23,7 @@ class Dotty < Formula
   desc "Dotfiles using symlinks and embedded git"
   homepage "$REPOSITORY"
   url "$URL"
+  version "$VERSION"
   sha256 "$SHA256"
   license "MIT"
 
@@ -141,6 +142,7 @@ def generate(
         {
             "REPOSITORY": repository,
             "URL": url,
+            "VERSION": version,
             "SHA256": get_url_sha256(url),
             "DOWNLOAD": "\n\n  ".join(platform_templates),
         }
