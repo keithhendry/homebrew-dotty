@@ -6,6 +6,7 @@ class Dotty < Formula
   desc "Dotfiles using symlinks and embedded git"
   homepage "https://github.com/keithhendry/dotty"
   url "https://github.com/keithhendry/dotty/archive/refs/tags/1.1.1.tar.gz"
+  version "1.1.1"
   sha256 "4b2c058d18d1bad2328ac2ac614f040f8b6b70e687293cf878594a8b498671c3"
   license "MIT"
 
