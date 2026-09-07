@@ -23,7 +23,6 @@ class Dotty < Formula
   desc "Dotfiles using symlinks and embedded git"
   homepage "$REPOSITORY"
   url "$URL"
-  version "$VERSION"
   sha256 "$SHA256"
   license "MIT"
 
